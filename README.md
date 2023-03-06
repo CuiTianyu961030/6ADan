@@ -2,8 +2,6 @@
 
 **基于地址探测与关联技术的IPv6地址分析平台**
 
-![6ADan](images/6adan.png)
-
 自2017年底国家推出“IPv6的规模部署计划”，国内IPv6互联网生态的发展已逐步完善。然而，由于IPv6网络存在的天然特性，导致传统面向用户的网络管理手段不再适用于IPv6网络。其一，IPv6拥有庞大的地址空间，在如今有限的带宽和计算资源下，传统扫描方法在IPv6网络下无法完成。其二，IETF提出基于临时地址的IPv6地址配置方法，IPv6网络下近70%的用户会频繁变更其客户端地址，使传统的用户追踪手段面临挑战。
 
 6ADan（IPv**6** **AD**dress **AN**alysis Platform）平台旨在实现地址生成技术与地址关联技术以解决上述的两大挑战，平台提供四个服务，包括地址生成服务、地址关联服务、生成分析服务、关联分析服务。
@@ -38,13 +36,15 @@
 python app.py
 ```
 
-平台的Web程序将运行在设备的``60000``端口，访问``http://127.0.0.1:60000/index``将进入IPv6地址分析平台的首页部分。
+平台的Web程序将运行在设备的``60000``端口，访问``http://127.0.0.1:60000/index``将进入6ADan的首页部分。
+
+<img src="images/6adan.png" width="600">
 
 ## 平台架构
 
 IPv6地址分析平台6ADan是基于``Python Flask``实现的``Web``应用程序框架，主要可以分为三个处理单元，包括平台基础功能建设、平台模型构建与调用、平台分析技术应用。具体框架如下：
 
-![Framework](images/framework.png)
+<img src="images/framework.png" width="600">
 
 * **平台基础功能建设**：平台基础功能建设部分的主要目标是实现平台的基 本框架、功能和数据基础支撑
 * **平台模型构建与调用**：平台模型构建与调用部分主要实现了本文实现的 地址生成模型和地址关联模型的模型训练与调用过程
@@ -71,15 +71,15 @@ IPv6地址分析平台6ADan是基于``Python Flask``实现的``Web``应用程序
 
 ### IP地理定位分析
 
-![Generation](images/generation_1.png)
+<img src="images/generation_1.png" width="500">
 
 ### 国家来源分析
 
-![Generation](images/generation_2.png)
+<img src="images/generation_2.png" width="500">
 
 ### 城市分布分析
 
-![Generation](images/generation_3.png)
+<img src="images/generation_3.png" width="500">
 
 ## 关联分析
 
@@ -87,15 +87,15 @@ IPv6地址分析平台6ADan是基于``Python Flask``实现的``Web``应用程序
 
 ### 地址关联可视化
 
-![Correlation](images/correlation_1.png)
+<img src="images/correlation_1.png" width="500">
 
 ### 用户追踪
 
-![Correlation](images/correlation_2.png)
+<img src="images/correlation_2.png" width="500">
 
 ### 用户发现
 
-![Correlation](images/correlation_3.png)
+<img src="images/correlation_3.png" width="500">
 
 ## 参考链接
 
