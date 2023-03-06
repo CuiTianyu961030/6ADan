@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title> 6ADan - IPv6地址分析平台 </title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/perfect_blue.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/gen_packed.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+    <script src="/static/js/echarts.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=nVXUR1aWE6U3pMDuNYjkSpGD6DYmeFBA"></script>
+    <script type="text/javascript" src="/static/js/bmap.js"></script>
+    <script type="text/javascript" src="/static/js/bmap.min.js"></script>
+
+</head>
+<style>
+    .anchorBL {
+        display: none;
+    }
+</style>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/index">6ADan</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link " href="/index"> <div style="font-size: 10px;margin: 2px">首页</div> </a>
+                    <a class="nav-item nav-link " href="/generation"> <div style="font-size: 10px;margin: 2px">地址生成模型</div> </a>
+                    <a class="nav-item nav-link " href="/linkage"> <div style="font-size: 10px;margin: 2px">地址关联模型</div> </a>
+                    <a class="nav-item nav-link active" href="/gen-analysis"> <div style="font-size: 10px;margin: 2px">生成分析</div> </a>
+                    <a class="nav-item nav-link " href="/link-analysis"> <div style="font-size: 10px;margin: 2px">关联分析</div> </a>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1> 生成分析
+                <span class="float-right"></span>
+            </h1>
+            <h5 class="text-muted">&nbsp;Generation Analysis </h5>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <p>完成地址生成任务后，用户可输入生成的地址候选集进行生成地址的可视化分析，平台提供的生成分析任务包括地址地理分析、地址网段分析、生成质量分析等。</p>
+                <p>系统通过用户输入的地址候选集进行生成地址分析，并最终在前端提供可视化结果。</p>
+                <hr>
+                <h2><strong>地址集输入</strong></h2>
+                <p>输入的生成地址候选集格式需遵照开源算法的数据格式要求，例如6GAN的输入数据格式的<a href="//github.com/CuiTianyu961030/6GAN" target="_blank">参考链接地址</a>。</p>
+                <form id="form1" method="post" action="/gen-analysis/upload" enctype="multipart/form-data">
+                    <div>
+                        <div style="width: 15%; float: left;">
+                            <a href="javascript:" class="file" style="">选择文件<input type="file" name="myfile"></a>
+                        </div>
+                        <div class="showFileName" style="width: 35%; float: left; padding: 4px 12px;">&nbsp</div>
+                        <div style="width: 10%; float: left;"><input type="submit" value="提交" class="file"></div>
+                        <div style="width: 40%; float: left; padding: 4px 12px;"><p>{{ upload_return }}</p></div>
+                    </div>
+                </form>
+                <br><br>
+                <hr>
+                <h2><strong>地址可视化分析</strong></h2>
+                <p>输入生成的候选集后，平台会通过多种手段进行输入地址集的可视化分析工作，由于平台利用了GeoIP、WHOIS等分析工具，当地址数量过多时分析时间会较为漫长，请耐心等待。平台仅提供数据库中存在地址的数据分析，不存在地址将因抛出异常而丢弃。</p>
+                <form method="post" action="/gen-analysis/analyse">
+                    <input type="submit" value="开始分析" class="file">
+                </form>
+                <br><br>
+                <h3><strong>#01 地址地理定位分析</strong></h3>
+                <p>地址地理定位分析利用GeoIP库与百度地图API进行地址集中地址的地理定位，定位准确度与MAXMIND公开的GeoIP2数据库相关，用户可用鼠标点击地图拖拽或放大缩小进行查看。</p>
+                <div id="main1" style="width: 700px;height: 700px;"></div>
+                <hr>
+                <h3><strong>#02 城市分布分析</strong></h3>
+                <p>城市分布分析统计地址集中地址所属的城市来源，分布统计准确度与MAXMIND公开的GeoIP2数据库相关。</p>
+                <div id="main2" style="width: 800px;height: 400px;"></div>
+                <hr>
+                <h3><strong>#03 AS域分析</strong></h3>
+                <p>地址AS域分析统计地址集中地址的AS域来源并记录地址的AS自治域号（ASN, AS Number）分布。</p>
+                <div id="main3" style="width: 800px;height: 400px;"></div>
+                <hr>
+                <h3><strong>#04 国家来源分析</strong></h3>
+                <p>地址国家来源分析统计地址集中地址的国家来源并记录地址来源的国家编号（Country Code）缩写。</p>
+                <div id="main4" style="width: 800px;height: 400px;"></div>
+                <hr>
+                <h3><strong>#05 网络来源分析</strong></h3>
+                <p>地址网络来源分析统计地址集中地址来自哪些网络并记录地址的网络分布和WHOIS中的网络描述。</p>
+                <div id="main5" style="width: 800px;height: 400px;"></div>
+                <hr>
+                <h3><strong>#06 地址网段分析</strong></h3>
+                <p>地址网段分析统计地址集中地址所属的网段信息，网段信息由MAXMIND公开的ASN数据集提供。</p>
+                <div id="main6" style="width: 700px;height: 800px;"></div>
+
+            </div>
+        </div>
+        <footer>
+            <p class="float-left">
+                <small> &copy; 2022 <a href="https://cuitianyu.site/" title="Written by Tianyu Cui">Tianyu Cui</a> -
+                    <a href="https://github.com/CuiTianyu961030" title="Fork me on GitHub">GitHub</a> -
+                    <a href="https://flask.palletsprojects.com/en/1.1.x/" title="Flask project">Flask</a>
+                </small>
+            <p class="float-right">
+                <small>
+                    <a href="/index">6ADan</a>
+                </small>
+            </p>
+        </footer>
+    </main>
+    <iframe id="iframe" name="iframe" style="display:none;"></iframe>
+    <script type="text/javascript">
+        $(".file").on("change","input[type='file']",function(){
+            var filePath=$(this).val();
+            var arr=filePath.split('\\');
+            var fileName=arr[arr.length-1];
+            $(".showFileName").html(fileName);
+        })
+    </script>
+    <script>
+        var chartDom = document.getElementById('main1');
+        var myChart = echarts.init(chartDom);
+        var option;
+        const data = {{ geo_value|safe }};
+        const geoCoordMap = {{ geo|safe }};
+        const convertData = function (data) {
+          var res = [];
+          for (var i = 0; i < data.length; i++) {
+            var geoCoord = geoCoordMap[data[i].name];
+            if (geoCoord) {
+              res.push({
+                name: data[i].name,
+                value: geoCoord.concat(data[i].value)
+              });
+            }
+          }
+          return res;
+        };
+        option = {
+          title: {
+            text: '地址世界地理定位分析',
+            subtext: 'GeoIP in the world map',
+            left: 'center'
+          },
+          tooltip: {
+            trigger: 'item'
+          },
+          bmap: {
+            center: [104.114129, 37.550339],
+            zoom: 5,
+            roam: true,
+            mapStyle: {
+              styleJson: [
+                {
+                  featureType: 'water',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#d1d1d1'
+                  }
+                },
+                {
+                  featureType: 'land',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#f3f3f3'
+                  }
+                },
+                {
+                  featureType: 'railway',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'highway',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#fdfdfd'
+                  }
+                },
+                {
+                  featureType: 'highway',
+                  elementType: 'labels',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'arterial',
+                  elementType: 'geometry',
+                  stylers: {
+                    color: '#fefefe'
+                  }
+                },
+                {
+                  featureType: 'arterial',
+                  elementType: 'geometry.fill',
+                  stylers: {
+                    color: '#fefefe'
+                  }
+                },
+                {
+                  featureType: 'poi',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'green',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'subway',
+                  elementType: 'all',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'manmade',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#d1d1d1'
+                  }
+                },
+                {
+                  featureType: 'local',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#d1d1d1'
+                  }
+                },
+                {
+                  featureType: 'arterial',
+                  elementType: 'labels',
+                  stylers: {
+                    visibility: 'off'
+                  }
+                },
+                {
+                  featureType: 'boundary',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#fefefe'
+                  }
+                },
+                {
+                  featureType: 'building',
+                  elementType: 'all',
+                  stylers: {
+                    color: '#d1d1d1'
+                  }
+                },
+                {
+                  featureType: 'label',
+                  elementType: 'labels.text.fill',
+                  stylers: {
+                    color: '#999999'
+                  }
+                }
+              ]
+            }
+          },
+          series: [
+            {
+              name: 'IP',
+              type: 'scatter',
+              coordinateSystem: 'bmap',
+              data: convertData(data),
+              symbolSize: function (val) {
+                  if (val[2] <= 500) return val[2] / 10;
+                  else return 50;
+                {#return val[2] / 10;#}
+              },
+              encode: {
+                value: 2
+              },
+              label: {
+                formatter: '{b}',
+                position: 'right',
+                show: false
+              },
+              emphasis: {
+                label: {
+                  show: true
+                }
+              }
+            },
+            {
+              name: 'Top 5',
+              type: 'effectScatter',
+              coordinateSystem: 'bmap',
+              data: convertData(
+                data
+                  .sort(function (a, b) {
+                    return b.value - a.value;
+                  })
+                  .slice(0, 5)
+              ),
+              symbolSize: function (val) {
+                  if (val[2] <= 500) return val[2] / 10;
+                  else return 50;
+                {#return val[2] / 10;#}
+              },
+              encode: {
+                value: 2
+              },
+              showEffectOn: 'render',
+              rippleEffect: {
+                brushType: 'stroke'
+              },
+              label: {
+                formatter: '{b}',
+                position: 'right',
+                show: true
+              },
+              itemStyle: {
+                shadowBlur: 10,
+                shadowColor: '#333'
+              },
+              emphasis: {
+                scale: true
+              },
+              zlevel: 1
+            }
+          ]
+        };
+
+        myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+      var myChart = echarts.init(document.getElementById('main2'));
+
+        var option = {
+        title: {
+          text: '地址城市来源分布',
+            subtext: 'City Distribution',
+            left: 'center'
+        },
+          tooltip: {
+            trigger: 'item'
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'left'
+          },
+          series: [
+            {
+              name: 'City',
+              type: 'pie',
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 10,
+                borderColor: '#fff',
+                borderWidth: 2
+              },
+              label: {
+                show: false,
+                position: 'center'
+              },
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: '40',
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
+              },
+              data: {{ city|safe }}
+            }
+          ]
+        };
+
+      myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+      var myChart = echarts.init(document.getElementById('main3'));
+
+      var option = {
+        title: {
+          text: '地址集的ASN分布'
+        },
+        tooltip: {},
+        legend: {
+          data: ['AS Number']
+        },
+        xAxis: {
+          data: {{ asn_x|safe }}
+        },
+        yAxis: {},
+        series: [
+          {
+            name: 'AS Number',
+            type: 'bar',
+            data: {{ asn_y }}
+          }
+        ]
+      };
+
+      myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+      var myChart = echarts.init(document.getElementById('main4'));
+
+      option = {
+          title: {
+            text: '地址集的国家来源统计',
+            subtext: 'Country Code',
+            left: 'center'
+          },
+          tooltip: {
+            trigger: 'item'
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'left'
+          },
+          series: [
+            {
+              name: 'Country Code',
+              type: 'pie',
+              radius: '50%',
+              data: {{ asn_country_code|safe }},
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+              }
+            }
+          ]
+        };
+
+      myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+      var myChart = echarts.init(document.getElementById('main5'));
+
+      var option = {
+        title: {
+          text: '地址集的网络来源统计'
+        },
+        tooltip: {},
+        legend: {
+          data: ['Network']
+        },
+        xAxis: {
+          data: {{ asn_description_x|safe }}
+        },
+        yAxis: {},
+        series: [
+          {
+            name: 'Network',
+            type: 'bar',
+            data: {{ asn_description_y }}
+          }
+        ]
+      };
+
+      myChart.setOption(option);
+    </script>
+    <script type="text/javascript">
+        var myChart = echarts.init(document.getElementById('main6'));
+        var option = {
+          title: {
+            text: '地址网段来源统计'
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {},
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'value',
+            boundaryGap: [0, 0.01]
+          },
+          yAxis: {
+            type: 'category',
+            data: {{ network_x|safe }}
+          },
+          series: [
+            {
+              name: 'Network Prefix',
+              type: 'bar',
+              data: {{ network_y }}
+            }
+          ]
+        };
+        myChart.setOption(option);
+    </script>
+
+</body>
+</html>

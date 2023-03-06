@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title> 6ADan - IPv6地址分析平台 </title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/perfect_blue.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/gen_packed.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/index">6ADan</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link " href="/index"> <div style="font-size: 10px;margin: 2px">首页</div> </a>
+                    <a class="nav-item nav-link " href="/generation"> <div style="font-size: 10px;margin: 2px">地址生成模型</div> </a>
+                    <a class="nav-item nav-link active" href="/linkage"> <div style="font-size: 10px;margin: 2px">地址关联模型</div> </a>
+                    <a class="nav-item nav-link " href="/gen-analysis"> <div style="font-size: 10px;margin: 2px">生成分析</div> </a>
+                    <a class="nav-item nav-link " href="/link-analysis"> <div style="font-size: 10px;margin: 2px">关联分析</div> </a>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1> 地址关联模型
+                <span class="float-right"></span>
+            </h1>
+            <h5 class="text-muted">&nbsp;Address Correlation Models </h5>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <p>地址关联模型旨在实现用户动态变更的IPv6客户端地址的关联任务。在一段时间内，用户可能产生多个IPv6客户端地址访问网上服务，地址关联模型通过在流量下衡量每两个地址的相似度以实现同一用户的地址关联。</p>
+                <p>系统通过用户的数据集和算法设置进行地址关联模型构建，接下来用户可以进行模型的训练。训练结果会得到实时的展示，包括训练集和测试集在每个epoch结束后的各项指标值，迭代时间等。训练结束后，系统会保存地址关联模型并提供下载服务。</p>
+                <hr>
+                <h2><strong>数据集输入</strong></h2>
+                <p>输入的用户数据集格式需遵照开源算法的数据格式要求，例如SiamHAN的输入数据格式的<a href="//github.com/CuiTianyu961030/SiamHAN" target="_blank">参考链接地址</a>。</p>
+                <form id="form1" method="post" action="/linkage/upload" enctype="multipart/form-data">
+                    <div>
+                        <div style="width: 15%; float: left;">
+                            <a href="javascript:" class="file" style="">选择文件<input type="file" name="myfile"></a>
+                        </div>
+                        <div class="showFileName" style="width: 35%; float: left; padding: 4px 12px;">&nbsp</div>
+                        <div style="width: 10%; float: left;"><input type="submit" value="提交" class="file"></div>
+                        <div style="width: 40%; float: left; padding: 4px 12px;"><p>{{ upload_return }}</p></div>
+                    </div>
+                </form>
+                <br><br>
+                <hr>
+                <h2><strong>模型构建</strong></h2>
+                <p>选择地址关联模型进行模型训练，平台目前包括的地址关联模型如下，可选择其中任意一种完成输入数据集下的地址关联模型构建。</p>
+                <ul>
+                    <li><b>SiamHAN</b> - 基于孪生异质图注意力网络的地址关联模型
+                    <li><b>GALG</b> - 基于图自编码器与链接生成的地址关联模型
+                </ul>
+                <form method="post" action="/linkage/train" target="iframe">
+                    <div style="width: 37.5%; float: left;"><input type="radio" name="model" value="SiamHAN" /> SiamHAN </div>
+                    <div style="width: 37.5%; float: left;"><input type="radio" name="model" value="GALG" /> GALG </div>
+{#                    <input type="checkbox" name="stop_word" value="stop_word" >&nbsp;去停用词<br>#}
+{#                    <input type="checkbox" name="special_word" value="special_word" >&nbsp;去特殊字符<br>#}
+{#                    <div class="form-group required"><label class="form-control-label" for="other_word">自定义筛去的特殊字符</label>#}
+{#                        <textarea class="form-control" id="other_word" name="other_word"></textarea>#}
+{#                    </div>#}
+                    <input type="submit" value="开始训练" class="file">
+                </form>
+
+                <div class="form-group required"><label class="form-control-label" for="other_word">执行日志</label>
+                    <textarea class="form-control" id="log_now_link" rows="15"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8" style="margin-top: 5px">
+                <form method="post" action="/linkage/download">
+                    <input class="file" type="submit" value="下载模型">
+                </form>
+            </div>
+        </div>
+        <footer>
+            <p class="float-left">
+                <small> &copy; 2022 <a href="https://cuitianyu.site/" title="Written by Tianyu Cui">Tianyu Cui</a> -
+                    <a href="https://github.com/CuiTianyu961030" title="Fork me on GitHub">GitHub</a> -
+                    <a href="https://flask.palletsprojects.com/en/1.1.x/" title="Flask project">Flask</a>
+                </small>
+            <p class="float-right">
+                <small>
+                    <a href="/index">6ADan</a>
+                </small>
+            </p>
+        </footer>
+    </main>
+    <iframe id="iframe" name="iframe" style="display:none;"></iframe>
+    <script type="text/javascript">
+
+        $(".file").on("change","input[type='file']",function(){
+            var filePath=$(this).val();
+            var arr=filePath.split('\\');
+            var fileName=arr[arr.length-1];
+            $(".showFileName").html(fileName);
+        })
+
+        function query_link() {
+            $.ajax({
+                url: '/linkage/query_link',
+                type: 'get',
+                timeout: 10000,
+                success:function (log) {
+                    $('#log_now_link').html(log)
+                }
+            });
+        }
+        setInterval(query_link, 1000)
+    </script>
+
+</body>
+</html>

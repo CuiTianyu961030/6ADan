@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title> 6ADan - IPv6地址分析平台 </title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/perfect_blue.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/gen_packed.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/index">6ADan</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link " href="/index"> <div style="font-size: 10px;margin: 2px">首页</div> </a>
+                    <a class="nav-item nav-link active" href="/generation"> <div style="font-size: 10px;margin: 2px">地址生成模型</div> </a>
+                    <a class="nav-item nav-link " href="/linkage"> <div style="font-size: 10px;margin: 2px">地址关联模型</div> </a>
+                    <a class="nav-item nav-link " href="/gen-analysis"> <div style="font-size: 10px;margin: 2px">生成分析</div> </a>
+                    <a class="nav-item nav-link " href="/link-analysis"> <div style="font-size: 10px;margin: 2px">关联分析</div> </a>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1> 地址生成模型
+                <span class="float-right"></span>
+            </h1>
+            <h5 class="text-muted">&nbsp;Target Generation Algorithms </h5>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <p>目标生成算法是一种通过输入已知活跃地址集进行地址结构学习并预测新的活跃目标的地址发现方法。方法需要输入活跃地址数据集，并通过结构分析和目标生成两个模块分别学习地址集的模式特征并预测聚集区域或活跃地址。最终生成候选集作为待测的扫描目标。</p>
+                <p>系统通过用户的数据集和算法设置进行地址生成模型构建，接下来用户可以进行模型的训练。训练结果会得到实时的展示，包括训练集和测试集在每个epoch结束后的各项指标值，迭代时间等。训练结束后，系统会保存生成候选集并提供下载服务。</p>
+                <hr>
+                <h2><strong>数据集输入</strong></h2>
+                <p>输入的活跃地址数据集格式需遵照开源算法的数据格式要求，例如6GAN的输入数据格式的<a href="//github.com/CuiTianyu961030/6GAN" target="_blank">参考链接地址</a>。</p>
+                <form id="form1" method="post" action="/generation/upload" enctype="multipart/form-data">
+                    <div>
+                        <div style="width: 15%; float: left;">
+                            <a href="javascript:" class="file" style="">选择文件<input type="file" name="myfile"></a>
+                        </div>
+                        <div class="showFileName" style="width: 35%; float: left; padding: 4px 12px;">&nbsp</div>
+                        <div style="width: 10%; float: left;"><input type="submit" value="提交" class="file"></div>
+                        <div style="width: 40%; float: left; padding: 4px 12px;"><p>{{upload_return}}</p></div>
+                    </div>
+                </form>
+                <br><br>
+                <hr>
+                <h2><strong>模型构建</strong></h2>
+                <p>选择地址生成模型进行模型训练，平台目前包括的目标生成算法如下，可选择其中任意一种完成输入数据集下的地址生成模型构建。</p>
+                <ul>
+                    <li><b>6GAN</b> - 基于生成对抗网络与强化学习的IPv6多模式目标生成算法
+                    <li><b>6VecLM</b> - 基于向量空间下语义建模的IPv6目标生成算法
+                    <li><b>6GCVAE</b> - 基于门控卷积变分自编码器的IPv6目标生成算法
+                </ul>
+                <form method="post" action="/generation/train" target="iframe">
+                    <div style="width: 25%; float: left;"><input type="radio" name="model" value="6GAN" /> 6GAN </div>
+                    <div style="width: 25%; float: left;"><input type="radio" name="model" value="6VecLM" /> 6VecLM </div>
+                    <div style="width: 25%; float: left;"><input type="radio" name="model" value="6GCVAE" /> 6GCVAE </div>
+{#                    <input type="checkbox" name="stop_word" value="stop_word" >&nbsp;去停用词<br>#}
+{#                    <input type="checkbox" name="special_word" value="special_word" >&nbsp;去特殊字符<br>#}
+{#                    <div class="form-group required"><label class="form-control-label" for="other_word">自定义筛去的特殊字符</label>#}
+{#                        <textarea class="form-control" id="other_word" name="other_word"></textarea>#}
+{#                    </div>#}
+                    <input type="submit" value="开始训练" class="file">
+                </form>
+
+                <div class="form-group required"><label class="form-control-label" for="other_word">执行日志</label>
+                    <textarea class="form-control" id="log_now" rows="10"></textarea>
+                </div>
+{#                <p style="margin-top: 2px">&nbsp;&nbsp;{{ preprocess_return }}</p>#}
+                <hr>
+                <h2><strong>地址生成</strong></h2>
+                <p>完成模型构建后，经过训练的地址生成模型可以进行批量地址生成，请在下方输入待生成的候选集地址数量。模型完成生成预测后，
+                    用户可将生成的地址下载到本地浏览查看。</p>
+            </div>
+        </div>
+
+        <div class="row h-100" style="margin-top: 5px">
+            <form action="/generation/gen" method="post" class="form col-6" role="form" target="iframe">
+                <input id="csrf_token" name="csrf_token" type="hidden" value="ImVhYjExYmQ3Y2FjNTg4MWQ2Yzg4NjBjZjVkOWJjNzExOTE0Mjk1N2Ui.YCrByg.e_uXN9yRNia6Hvzywuv0Opp3xPY">
+                <div class="form-group required"><label class="form-control-label" for="number">预生成的候选地址数量（1~1000000）</label>
+                    <input class="form-control" id="number" name="number" required type="number" min=1 max=1000000 value="">
+                </div>
+                <div style="width: 33%; float: left;"><input type="radio" name="model" value="6GAN" /> 6GAN </div>
+                <div style="width: 33%; float: left;"><input type="radio" name="model" value="6VecLM" /> 6VecLM </div>
+                <div style="width: 25%; float: left;"><input type="radio" name="model" value="6GCVAE" /> 6GCVAE </div>
+                <br><br>
+                <input class="file" id="submit" name="submit" type="submit" value="开始生成">
+                <br><br>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-sm-8" style="margin-top: 5px">
+                <div class="form-group required"><label class="form-control-label" for="other_word">执行日志</label>
+                    <textarea class="form-control" id="log_now_gen" rows="10"></textarea>
+                </div>
+                <form method="post" action="/generation/download" target="iframe">
+                    <input class="file" type="submit" value="下载地址">
+                </form>
+            </div>
+        </div>
+        <footer>
+            <p class="float-left">
+                <small> &copy; 2022 <a href="https://cuitianyu.site/" title="Written by Tianyu Cui">Tianyu Cui</a> -
+                    <a href="https://github.com/CuiTianyu961030" title="Fork me on GitHub">GitHub</a> -
+                    <a href="https://flask.palletsprojects.com/en/1.1.x/" title="Flask project">Flask</a>
+                </small>
+            <p class="float-right">
+                <small>
+                    <a href="/index">6ADan</a>
+                </small>
+            </p>
+        </footer>
+    </main>
+    <iframe id="iframe" name="iframe" style="display:none;"></iframe>
+    <script type="text/javascript">
+        $(".file").on("change","input[type='file']",function(){
+            var filePath=$(this).val();
+            var arr=filePath.split('\\');
+            var fileName=arr[arr.length-1];
+            $(".showFileName").html(fileName);
+        })
+
+        function query() {
+            $.ajax({
+                url: '/generation/query',
+                type: 'get',
+                timeout: 10000,
+                success:function (log) {
+                    $('#log_now').html(log)
+                }
+            });
+        }
+
+        function query_gen() {
+            $.ajax({
+                url: '/generation/query_gen',
+                type: 'get',
+                timeout: 10000,
+                success:function (log) {
+                    $('#log_now_gen').html(log)
+                }
+            });
+        }
+        setInterval(query, 1000)
+        setInterval(query_gen, 1000)
+    </script>
+
+</body>
+</html>

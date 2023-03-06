@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title> 6ADan - IPv6地址分析平台 </title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/perfect_blue.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/gen_packed.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/index">6ADan</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link active" href="/index"> <div style="font-size: 10px;margin: 2px">首页</div> </a>
+                    <a class="nav-item nav-link " href="/generation"> <div style="font-size: 10px;margin: 2px">地址生成模型</div> </a>
+                    <a class="nav-item nav-link " href="/linkage"> <div style="font-size: 10px;margin: 2px">地址关联模型</div> </a>
+                    <a class="nav-item nav-link " href="/gen-analysis"> <div style="font-size: 10px;margin: 2px">生成分析</div> </a>
+                    <a class="nav-item nav-link " href="/link-analysis"> <div style="font-size: 10px;margin: 2px">关联分析</div> </a>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2 class="display-3">6ADan</h2>
+            <h5 class="text-muted">&nbsp;A simple and fast platform for IPv6 address analysis.</h5>
+            <h6 class="text-muted">&nbsp;一个简洁且快速的IPv6地址分析平台。</h6>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-8">
+                <p>自2017年底国家推出“IPv6的规模部署计划”，国内IPv6互联网生态的发展已逐步完善。然而，由于IPv6网络存在的天然特性，导致传统面向用户的网络管理手段不再适用于IPv6网络。其一，IPv6拥有庞大的地址空间，在如今有限的带宽和计算资源下，传统扫描方法在IPv6网络下无法完成。其二，IETF提出基于临时地址的IPv6地址配置方法，IPv6网络下近70%的用户会频繁变更其客户端地址，使传统的用户追踪手段面临挑战。</p>
+                <p>6ADan（IPv<b>6</b> <b>AD</b>dress <b>AN</b>alysis Platform）平台旨在实现地址生成技术与地址关联技术以解决上述的两大挑战，平台提供四个服务，包括地址生成服务、地址关联服务、生成分析服务、关联分析服务。</p>
+                <ul>
+                    <li><b>地址生成模型</b> - 用户可自定义输入数据集并选择不同的地址生成算法进行地址生成模型的训练和生成预测，生成的地址候选集可以下载到本地并输入到生成分析模块进行地址生成的结果分析。
+                    <li><b>地址关联模型</b> - 用户可自定义输入数据集并选择不同的地址关联模型进行地址关联模型的训练和测试，训练后的关联模型可以下载到本地并和输入数据集一起输入到关联分析模块进行地址关联的结果分析。
+                    <li><b>生成分析</b> - 用户可输入生成的地址候选集进行生成地址的可视化分析。
+                    <li><b>关联分析</b> - 用户可输入数据集和训练后的关联模型进行地址关联的可视化分析。
+                </ul>
+                <p>平台目前包含的地址生成模型与地址关联模型包括6GAN、6VecLM、6GCVAE、SiamHAN、GALG，使用前请注意原文代码的数据集格式与配置信息。欢迎大家提出对平台提升有所帮助的建设性意见，共建美好的IPv6社区！</p>
+            </div>
+            <div class="col-sm-4 sidebar">
+                <div class="card mb-3">
+                    <div class="card-header">参考链接</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item  list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="https://github.com/CuiTianyu961030/6GAN" target="_blank">6GAN - 基于生成对抗网络与强化学习的IPv6多模式目标生成算法</a>
+                            </li>
+                            <li class="list-group-item  list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="https://github.com/CuiTianyu961030/6VecLM" target="_blank">6VecLM - 基于向量空间下语义建模的IPv6目标生成算法</a>
+                            </li>
+                            <li class="list-group-item  list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="https://github.com/CuiTianyu961030/6GCVAE" target="_blank">6GCVAE - 基于门控卷积变分自编码器的IPv6目标生成算法</a>
+                            </li>
+                            <li class="list-group-item  list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="https://github.com/CuiTianyu961030/SiamHAN" target="_blank">SiamHAN - 基于孪生异质图注意力网络的地址关联模型</a>
+                            </li>
+                            <li class="list-group-item  list-group-item-action d-flex justify-content-between align-items-center">
+                                <a href="https://github.com/CuiTianyu961030/GALG" target="_blank">GALG - 基于图自编码器与链接生成的地址关联模型</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        <footer>
+            <p class="float-left">
+                <small> &copy; 2022 <a href="https://cuitianyu.site/" title="Written by Tianyu Cui">Tianyu Cui</a> -
+                    <a href="https://github.com/CuiTianyu961030" title="Fork me on GitHub">GitHub</a> -
+                    <a href="https://flask.palletsprojects.com/en/1.1.x/" title="Flask project">Flask</a>
+                </small>
+            <p class="float-right">
+                <small>
+                    <a href="/index">6ADan</a>
+                </small>
+            </p>
+        </footer>
+
+    </main>
+</body>
+</html>

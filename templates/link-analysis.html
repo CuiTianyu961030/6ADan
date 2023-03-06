@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title> 6ADan - IPv6地址分析平台 </title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/perfect_blue.min.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/gen_packed.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+    <script src="/static/js/echarts.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/index">6ADan</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link " href="/index"> <div style="font-size: 10px;margin: 2px">首页</div> </a>
+                    <a class="nav-item nav-link " href="/generation"> <div style="font-size: 10px;margin: 2px">地址生成模型</div> </a>
+                    <a class="nav-item nav-link " href="/linkage"> <div style="font-size: 10px;margin: 2px">地址关联模型</div> </a>
+                    <a class="nav-item nav-link " href="/gen-analysis"> <div style="font-size: 10px;margin: 2px">生成分析</div> </a>
+                    <a class="nav-item nav-link active" href="/link-analysis"> <div style="font-size: 10px;margin: 2px">关联分析</div> </a>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1> 关联分析
+                <span class="float-right"></span>
+            </h1>
+            <h5 class="text-muted">&nbsp;Linkage Analysis </h5>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <p>完成地址关联任务后，用户可输入待测数据集进行关联分析任务，平台提供的关联分析任务包括用户追踪和用户发现。注：平台目前仅支持使用SiamHAN模型进行关联分析，最新训练的模型会自动保存在平台中使用。</p>
+                <p>系统通过用户输入的待测数据集进行用户追踪与用户发现任务，并最终在前端提供可视化结果。</p>
+                <hr>
+                <h2><strong>数据集输入</strong></h2>
+                <p>输入的流量数据集格式需遵照开源算法的数据格式要求，例如SiamHAN的输入数据格式的<a href="//github.com/CuiTianyu961030/6GAN" target="_blank">参考链接地址</a>。</p>
+                <form id="form1" method="post" action="/link-analysis/upload" enctype="multipart/form-data">
+                    <div>
+                        <div style="width: 15%; float: left;">
+                            <a href="javascript:" class="file" style="">选择文件<input type="file" name="myfile"></a>
+                        </div>
+                        <div class="showFileName" style="width: 35%; float: left; padding: 4px 12px;">&nbsp</div>
+                        <div style="width: 10%; float: left;"><input type="submit" value="提交" class="file"></div>
+                        <div style="width: 40%; float: left; padding: 4px 12px;"><p>{{ upload_return }}</p></div>
+                    </div>
+                </form>
+                <br><br>
+                <hr>
+                <h2><strong>数据集分析</strong></h2>
+                <p>输入数据集后平台会进行用户数据集的可视化分析，提供数据集标注的部分客户端地址关联展示，图中节点表示用户的客户端地址，图中连边表示相同用户的不同客户端地址将被关联，点击右侧用户列表可隐藏不关心的用户客户端地址节点。</p>
+                <div id="main" style="width: 700px;height: 700px;"></div>
+                <hr>
+                <h2><strong>用户追踪</strong></h2>
+                <p>用户追踪任务通过掌握一些目标用户的一个客户端地址的画像知识，即可关联和追踪待测数据集中所有同属与目标用户的客户端地址，用户追踪测试中目标用户通过随机采样产生。</p>
+                <form method="post" action="/link-analysis/tracking" target="iframe">
+                    <input type="submit" value="开始分析" class="file">
+                </form>
+                <br>
+                <div class="form-group required"><label class="form-control-label" for="other_word">执行日志</label>
+                    <textarea class="form-control" id="log_now_tracking" rows="15"></textarea>
+                </div>
+                <hr>
+                <h2><strong>用户发现</strong></h2>
+                <p>用户发现任务通过对待测数据集中客户端地址进行两两关联度计算，从而实现流量下客户端地址簇的聚类算法，每个类簇下地址属于同一用户，最终实现待测数据集中的唯一用户数量发现。</p>
+                <form method="post" action="/link-analysis/discovery" target="iframe">
+                    <input type="submit" value="开始分析" class="file">
+                </form>
+                <br>
+                <div class="form-group required"><label class="form-control-label" for="other_word">执行日志</label>
+                    <textarea class="form-control" id="log_now_discovery" rows="15"></textarea>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p class="float-left">
+                <small> &copy; 2022 <a href="https://cuitianyu.site/" title="Written by Tianyu Cui">Tianyu Cui</a> -
+                    <a href="https://github.com/CuiTianyu961030" title="Fork me on GitHub">GitHub</a> -
+                    <a href="https://flask.palletsprojects.com/en/1.1.x/" title="Flask project">Flask</a>
+                </small>
+            <p class="float-right">
+                <small>
+                    <a href="/index">6ADan</a>
+                </small>
+            </p>
+        </footer>
+    </main>
+    <iframe id="iframe" name="iframe" style="display:none;"></iframe>
+    <script type="text/javascript">
+        $(".file").on("change","input[type='file']",function(){
+            var filePath=$(this).val();
+            var arr=filePath.split('\\');
+            var fileName=arr[arr.length-1];
+            $(".showFileName").html(fileName);
+        })
+
+        function query_tracking() {
+            $.ajax({
+                url: '/link-analysis/query_tracking',
+                type: 'get',
+                timeout: 10000,
+                success:function (log) {
+                    $('#log_now_tracking').html(log)
+                }
+            });
+        }
+        setInterval(query_tracking, 1000)
+
+        function query_discovery() {
+            $.ajax({
+                url: '/link-analysis/query_discovery',
+                type: 'get',
+                timeout: 10000,
+                success:function (log) {
+                    $('#log_now_discovery').html(log)
+                }
+            });
+        }
+        setInterval(query_discovery, 1000)
+    </script>
+    <script>
+        var chartDom = document.getElementById('main');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        myChart.showLoading();
+        $.getJSON('/link-analysis/draw_link_dataset', function (graph) {
+          myChart.hideLoading();
+          graph.nodes.forEach(function (node) {
+            node.label = {
+              show: node.symbolSize > 30
+            };
+          });
+          option = {
+            title: {
+              text: '用户数据集的客户端地址关联分析',
+              subtext: 'Linkage Analysis on User Dataset',
+              left: 'center'
+            },
+            tooltip: {},
+            legend: [
+              {
+                  orient: 'vertical',
+                  left: 'left',
+                data: graph.categories.map(function (a) {
+                  return a.name;
+                })
+              }
+            ],
+            animationDurationUpdate: 1500,
+            animationEasingUpdate: 'quinticInOut',
+            series: [
+              {
+                name: 'IP',
+                type: 'graph',
+                layout: 'circular',
+                circular: {
+                  rotateLabel: true
+                },
+                data: graph.nodes,
+                links: graph.links,
+                categories: graph.categories,
+                roam: true,
+                label: {
+                  position: 'right',
+                  formatter: '{b}'
+                },
+                lineStyle: {
+                  color: 'source',
+                  curveness: 0.3
+                }
+              }
+            ]
+          };
+          myChart.setOption(option);
+        });
+
+        option && myChart.setOption(option);
+    </script>
+</body>
+</html>
